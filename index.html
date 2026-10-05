@@ -284,6 +284,7 @@ async function saveMeta(){const c=db.clients.find(x=>x.id===currentId);if(!c)ret
 async function resetClient(){if(!confirm('Reset every checklist item for this client?'))return;const c=db.clients.find(x=>x.id===currentId);if(!c)return;c.checks={};await saveClient(c);openClient(currentId);}
 async function deleteClient(){if(!confirm('Delete this client and its checklist?'))return;const id=currentId;db.clients=db.clients.filter(x=>x.id!==id);showHome();try{await deleteDoc(doc(firestore,'clients',id));}catch(e){console.error(e);showSyncError('Could not delete the client from the shared database.');}}
 async function shareApp(){const url=location.href;try{if(navigator.share)await navigator.share({title:'Kitchen QC',text:'Open the Kitchen QC master app',url});else{await navigator.clipboard.writeText(url);alert('App link copied. Send it to your coworkers.');}}catch(e){}}
+window.showAdd=showAdd;window.showHome=showHome;window.createClient=createClient;window.resetClient=resetClient;window.deleteClient=deleteClient;window.shareApp=shareApp;
 
 // Firebase authentication + real-time shared client list
 onAuthStateChanged(auth, user=>{
