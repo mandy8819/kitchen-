@@ -293,7 +293,6 @@ onAuthStateChanged(auth, user=>{
   onSnapshot(collection(firestore,'clients'), snap=>{
     db.clients=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderClients();
-    if(currentId)openClient(currentId);
   }, err=>{console.error(err);showSyncError('Firebase is connected, but access to the shared data was denied. Please check Firebase Authentication and Firestore Rules.');});
 });
 signInAnonymously(auth).catch(err=>{console.error(err);showSyncError('Firebase sign-in is not enabled yet. Please enable Anonymous sign-in in Firebase Authentication.');});
