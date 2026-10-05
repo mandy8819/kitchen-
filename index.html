@@ -33,6 +33,43 @@ button{border:0;border-radius:9px;padding:12px 14px;font-weight:bold;font-size:1
 .check input{width:22px;height:22px;margin:0;flex:none;accent-color:#17803d}.check input:checked+span{text-decoration:line-through;color:#777}
 .next{display:block;margin:12px;padding:13px;text-align:center;background:#20252b;color:white;text-decoration:none;border-radius:8px;font-weight:bold;font-size:13px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1;min-width:130px}
+
+/* Premium dashboard */
+body{background:#eef0f3}
+header{background:linear-gradient(135deg,#0b1220 0%,#182438 55%,#0a0f18 100%);padding:22px 16px 18px;position:relative}
+header h1{font-size:22px;letter-spacing:.8px}
+.dashboard{max-width:760px;margin:auto;padding:14px}
+.hero{position:relative;overflow:hidden;min-height:210px;border-radius:22px;padding:24px;color:#fff;background:linear-gradient(135deg,#101827,#24344b 58%,#111827);box-shadow:0 14px 35px #0b122022;margin-bottom:15px}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;filter:blur(2px);opacity:.35}
+.hero:before{width:220px;height:220px;right:-70px;top:-90px;background:#b18a43}
+.hero:after{width:150px;height:150px;left:-75px;bottom:-100px;background:#60738d}
+.hero>*{position:relative;z-index:1}
+.hero-kicker{font-size:10px;letter-spacing:3px;color:#d4b36b;font-weight:800;margin-bottom:12px}
+.hero h2{font-size:29px;margin:0 0 8px;letter-spacing:.5px}
+.hero p{font-size:13px;color:#d8dee7;line-height:1.5;max-width:420px;margin:0 0 18px}
+.hero-btn{display:inline-block;border:0;border-radius:10px;background:#b38a3c;color:#fff;padding:12px 16px;font-weight:800;font-size:13px;cursor:pointer}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:15px}
+.stat{background:#fff;border-radius:15px;padding:14px 10px;box-shadow:0 3px 14px #11182710;border:1px solid #e5e7eb}
+.stat-num{font-size:22px;font-weight:900;color:#172033}
+.stat-label{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:#737b88;margin-top:4px}
+.stat.gold .stat-num{color:#a67c32}.stat.green .stat-num{color:#17803d}.stat.red .stat-num{color:#b42318}
+.projects-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 2px 10px}
+.projects-head h2{font-size:18px;margin:0;color:#171d27}
+.projects-head span{font-size:11px;color:#737b88}
+.searchbox{width:100%;padding:13px 14px;border:1px solid #d9dde3;border-radius:12px;font-size:14px;margin-bottom:11px;background:#fff;outline:none}
+.searchbox:focus{border-color:#a67c32;box-shadow:0 0 0 3px #a67c3215}
+.project-card{background:#fff;border:1px solid #e1e5ea;border-radius:17px;padding:15px;margin-bottom:10px;box-shadow:0 4px 16px #1118270d;cursor:pointer}
+.project-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.project-name{font-size:16px;font-weight:900;color:#1b2432}
+.project-meta{font-size:11px;color:#7a818c;margin-top:4px;line-height:1.4}
+.project-status{font-size:9px;font-weight:900;letter-spacing:.7px;border-radius:999px;padding:6px 8px;white-space:nowrap;background:#f2f4f7;color:#68707c}
+.project-status.inprogress{background:#fff5df;color:#956d21}.project-status.complete{background:#e9f7ee;color:#16723a}
+.project-progress{height:7px;background:#edf0f3;border-radius:99px;overflow:hidden;margin-top:13px}
+.project-progress span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#8f6a2b,#c29a4e)}
+.project-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:7px;font-size:10px;color:#7a818c}
+.project-bottom strong{color:#202936}
+.empty-project{background:#fff;border:1px dashed #cfd5dd;border-radius:16px;padding:28px 15px;text-align:center;color:#777;font-size:12px}
+@media(max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.hero{min-height:200px}.hero h2{font-size:27px}}
 </style></head><body>
 <header><h1>MODULAR KITCHEN QC</h1><p>Master client list — one app for all kitchens</p><div class="login-user" id="signedInUser"></div><button class="logout" id="logoutBtn" onclick="logoutUser()" style="display:none;margin:8px auto 0">LOG OUT</button></header>
 <section id="loginScreen" class="login-screen">
@@ -48,11 +85,25 @@ button{border:0;border-radius:9px;padding:12px 14px;font-weight:bold;font-size:1
 </section>
 <main id="top" class="app-hidden">
 <section id="home">
-<div class="topbar"><div><h2>ALL CLIENTS</h2><div class="status" id="clientCount">0 clients</div></div><button class="primary" onclick="showAdd()">+ ADD CLIENT</button></div>
-<div class="notice">One shortcut is enough. Create a client here, then open that client's complete QC checklist whenever you need it.</div>
-<div id="clientList"></div>
+<div class="dashboard">
+  <div class="hero">
+    <div class="hero-kicker">QUALITY CONTROL & SITE INSPECTION</div>
+    <h2>KITCHEN QC</h2>
+    <p>Better kitchens. Smoother projects. Higher standards. Manage every kitchen inspection from one shared workspace.</p>
+    <button class="hero-btn" onclick="showAdd()">+ ADD NEW KITCHEN</button>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total Kitchens</div></div>
+    <div class="stat gold"><div class="stat-num" id="statProgress">0</div><div class="stat-label">In Progress</div></div>
+    <div class="stat green"><div class="stat-num" id="statCompleted">0</div><div class="stat-label">Completed</div></div>
+    <div class="stat red"><div class="stat-num" id="statPending">0</div><div class="stat-label">Pending</div></div>
+  </div>
+  <div class="projects-head"><div><h2>YOUR PROJECTS</h2><span id="clientCount">0 clients</span></div></div>
+  <input id="projectSearch" class="searchbox" type="search" placeholder="Search client or site address..." oninput="renderClients()">
+  <div id="clientList"></div>
+</div>
 </section>
-<section id="add" class="hidden"><div class="topbar"><button class="light" onclick="showHome()">← BACK</button><h2>NEW CLIENT</h2><span></span></div>
+<section id="add class="hidden"><div class="topbar"><button class="light" onclick="showHome()">← BACK</button><h2>NEW CLIENT</h2><span></span></div>
 <div class="card"><label class="title">CLIENT NAME</label><input id="newClient" type="text" placeholder="Client name">
 <label class="title">SITE ADDRESS</label><input id="newAddress" type="text" placeholder="Site address">
 <label class="title">KITCHEN TYPE</label><select id="newType"><option value="">Select kitchen type</option><option>Indian Kitchen</option><option>German Kitchen</option></select>
@@ -287,11 +338,28 @@ async function createClient(){
 }
 function renderClients(){
   const el=document.getElementById('clientList');el.innerHTML='';
-  document.getElementById('clientCount').textContent=db.clients.length+' client'+(db.clients.length===1?'':'s');
-  if(!db.clients.length){el.innerHTML='<div class="card" style="text-align:center;color:#777">No clients yet.<br><br>Tap + ADD CLIENT to create your first kitchen.</div>';return}
-  db.clients.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).forEach(c=>{
-    const d=document.createElement('div');d.className='client';d.onclick=()=>openClient(c.id);
-    d.innerHTML='<div><strong>'+esc(c.name)+'</strong><small>'+esc(c.address||'No site address')+' • '+esc(c.type||'Kitchen type not selected')+'</small></div><div class="pct">'+progress(c)+'%</div>';
+  const search=(document.getElementById('projectSearch')?.value||'').trim().toLowerCase();
+  const total=db.clients.length;
+  const completed=db.clients.filter(c=>progress(c)>=100).length;
+  const inProgress=db.clients.filter(c=>{const p=progress(c);return p>0&&p<100;}).length;
+  const pending=db.clients.filter(c=>progress(c)===0).length;
+  const set=(id,v)=>{const x=document.getElementById(id);if(x)x.textContent=v;};
+  set('statTotal',total);set('statProgress',inProgress);set('statCompleted',completed);set('statPending',pending);
+  set('clientCount',total+' client'+(total===1?'':'s'));
+  const list=db.clients.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).filter(c=>{
+    const hay=((c.name||'')+' '+(c.address||'')+' '+(c.type||'')).toLowerCase();
+    return !search||hay.includes(search);
+  });
+  if(!list.length){
+    el.innerHTML='<div class="empty-project">'+(total?'No projects match your search.':'No kitchens yet. Tap + ADD NEW KITCHEN to create your first project.')+'</div>';
+    return;
+  }
+  list.forEach(c=>{
+    const p=progress(c);
+    const status=p>=100?'COMPLETED':p>0?'IN PROGRESS':'PENDING';
+    const cls=p>=100?'complete':p>0?'inprogress':'';
+    const d=document.createElement('div');d.className='project-card';d.onclick=()=>openClient(c.id);
+    d.innerHTML='<div class="project-top"><div><div class="project-name">'+esc(c.name)+'</div><div class="project-meta">'+esc(c.address||'No site address')+'<br>'+esc(c.type||'Kitchen type not selected')+'</div></div><div class="project-status '+cls+'">'+status+'</div></div><div class="project-progress"><span style="width:'+p+'%"></span></div><div class="project-bottom"><span>'+Object.values(c.checks||{}).filter(Boolean).length+' checks completed</span><strong>'+p+'%</strong></div>';
     el.appendChild(d);
   });
 }
@@ -331,6 +399,7 @@ async function logoutUser(){
   try{await signOut(auth);}catch(e){console.error(e);}
 }
 window.loginUser=loginUser;window.logoutUser=logoutUser;
+document.getElementById('loginPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter')loginUser();});
 
 onAuthStateChanged(auth, user=>{
   const login=document.getElementById('loginScreen');
