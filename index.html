@@ -6,6 +6,18 @@
 <style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f3f4f6;color:#20252b;font-family:Arial,Helvetica,sans-serif}
 header{background:#20252b;color:white;padding:18px 14px;text-align:center}h1{margin:0;font-size:21px}header p{margin:5px 0 0;color:#cbd0d6;font-size:12px}
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 20% 10%,#334155 0,#111827 42%,#070b11 100%);color:#fff}
+.login-card{width:100%;max-width:390px;background:rgba(255,255,255,.97);color:#20252b;border-radius:24px;padding:30px 24px;box-shadow:0 24px 70px #0008}
+.login-brand{font-size:11px;letter-spacing:2.5px;color:#a67c32;font-weight:800;text-align:center;margin-bottom:10px}
+.login-card h2{margin:0;text-align:center;font-size:29px;letter-spacing:1px}
+.login-card p{margin:8px 0 24px;text-align:center;color:#6b7280;font-size:13px}
+.login-card input{width:100%;padding:14px;border:1px solid #d7dbe0;border-radius:11px;font-size:15px;margin-bottom:12px;background:#fff}
+.login-card button{width:100%;padding:14px;border-radius:11px;border:0;font-size:15px;font-weight:800;background:#a67c32;color:#fff}
+.login-card button:disabled{opacity:.65}
+.login-error{min-height:18px;color:#b42318;font-size:12px;text-align:center;margin-top:10px}
+.login-user{font-size:11px;color:#cbd0d6;margin-top:5px}
+.logout{background:#39414a;color:#fff;padding:8px 10px;border-radius:8px;border:0;font-weight:bold;font-size:11px}
+.app-hidden{display:none!important}
 main{max-width:700px;margin:auto;padding:12px}.card,.stage{background:#fff;border-radius:13px;margin-bottom:12px;box-shadow:0 1px 4px #0001}.card{padding:14px}
 label.title{display:block;font-size:12px;font-weight:bold;color:#555;margin-bottom:5px}
 input[type=text],select{width:100%;padding:12px;border:1px solid #ccc;border-radius:9px;font-size:15px;margin-bottom:11px;background:#fff}
@@ -22,8 +34,19 @@ button{border:0;border-radius:9px;padding:12px 14px;font-weight:bold;font-size:1
 .next{display:block;margin:12px;padding:13px;text-align:center;background:#20252b;color:white;text-decoration:none;border-radius:8px;font-weight:bold;font-size:13px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1;min-width:130px}
 </style></head><body>
-<header><h1>MODULAR KITCHEN QC</h1><p>Master client list — one app for all kitchens</p></header>
-<main id="top">
+<header><h1>MODULAR KITCHEN QC</h1><p>Master client list — one app for all kitchens</p><div class="login-user" id="signedInUser"></div><button class="logout" id="logoutBtn" onclick="logoutUser()" style="display:none;margin:8px auto 0">LOG OUT</button></header>
+<section id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-brand">QUALITY CONTROL & SITE INSPECTION</div>
+    <h2>KITCHEN QC</h2>
+    <p>Sign in to access your shared kitchen projects.</p>
+    <input id="loginEmail" type="email" autocomplete="username" placeholder="Email address">
+    <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password">
+    <button id="loginBtn" onclick="loginUser()">LOGIN</button>
+    <div id="loginError" class="login-error"></div>
+  </div>
+</section>
+<main id="top" class="app-hidden">
 <section id="home">
 <div class="topbar"><div><h2>ALL CLIENTS</h2><div class="status" id="clientCount">0 clients</div></div><button class="primary" onclick="showAdd()">+ ADD CLIENT</button></div>
 <div class="notice">One shortcut is enough. Create a client here, then open that client's complete QC checklist whenever you need it.</div>
@@ -218,7 +241,7 @@ button{border:0;border-radius:9px;padding:12px 14px;font-weight:bold;font-size:1
 </main>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -286,16 +309,52 @@ async function deleteClient(){if(!confirm('Delete this client and its checklist?
 async function shareApp(){const url=location.href;try{if(navigator.share)await navigator.share({title:'Kitchen QC',text:'Open the Kitchen QC master app',url});else{await navigator.clipboard.writeText(url);alert('App link copied. Send it to your coworkers.');}}catch(e){}}
 window.showAdd=showAdd;window.showHome=showHome;window.createClient=createClient;window.resetClient=resetClient;window.deleteClient=deleteClient;window.shareApp=shareApp;
 
-// Firebase authentication + real-time shared client list
+// Firebase email/password authentication + real-time shared client list
+async function loginUser(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  const err=document.getElementById('loginError');
+  const btn=document.getElementById('loginBtn');
+  err.textContent='';
+  if(!email||!password){err.textContent='Please enter your email and password.';return;}
+  btn.disabled=true;btn.textContent='SIGNING IN...';
+  try{
+    await signInWithEmailAndPassword(auth,email,password);
+  }catch(e){
+    console.error(e);
+    err.textContent='Login failed. Please check your email and password.';
+  }finally{
+    btn.disabled=false;btn.textContent='LOGIN';
+  }
+}
+async function logoutUser(){
+  try{await signOut(auth);}catch(e){console.error(e);}
+}
+window.loginUser=loginUser;window.logoutUser=logoutUser;
+
 onAuthStateChanged(auth, user=>{
-  if(!user)return;
+  const login=document.getElementById('loginScreen');
+  const appMain=document.getElementById('top');
+  const logout=document.getElementById('logoutBtn');
+  const signed=document.getElementById('signedInUser');
+  if(!user){
+    ready=false;
+    appMain.classList.add('app-hidden');
+    login.classList.remove('app-hidden');
+    logout.style.display='none';
+    signed.textContent='';
+    return;
+  }
   ready=true;
+  login.classList.add('app-hidden');
+  appMain.classList.remove('app-hidden');
+  logout.style.display='block';
+  signed.textContent='Signed in as '+(user.email||'Team member');
   onSnapshot(collection(firestore,'clients'), snap=>{
     db.clients=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderClients();
   }, err=>{console.error(err);showSyncError('Firebase is connected, but access to the shared data was denied. Please check Firebase Authentication and Firestore Rules.');});
 });
-signInAnonymously(auth).catch(err=>{console.error(err);showSyncError('Firebase sign-in is not enabled yet. Please enable Anonymous sign-in in Firebase Authentication.');});
 
 renderClients();
 </script>
