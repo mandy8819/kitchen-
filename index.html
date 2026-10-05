@@ -216,24 +216,87 @@ button{border:0;border-radius:9px;padding:12px 14px;font-weight:bold;font-size:1
 <label class="check"><input type="checkbox" data-key="12-12"><span>Hand over warranty / hardware documents</span></label>
 <label class="check"><input type="checkbox" data-key="12-13"><span>Mark kitchen COMPLETE</span></label><div class="finish">✓ FINAL CHECK COMPLETE</div></section></template>
 </main>
-<script>
-const KEY='kitchen_qc_master_v3';let db=JSON.parse(localStorage.getItem(KEY)||'{"clients":[]}');let currentId=null;
-function persist(){localStorage.setItem(KEY,JSON.stringify(db));}
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyATSeqrOWKFfbQWWRAYFIFoY5DrZI88FKI",
+  authDomain: "kitchen-qc.firebaseapp.com",
+  projectId: "kitchen-qc",
+  storageBucket: "kitchen-qc.firebasestorage.app",
+  messagingSenderId: "736549531402",
+  appId: "1:736549531402:web:9d7a4669bd3e65e18b14f3"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const firestore = getFirestore(app);
+let db={clients:[]};
+let currentId=null;
+let ready=false;
+let saveQueue=Promise.resolve();
+
 function show(id){['home','add','detail'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==id));}
 function showHome(){currentId=null;show('home');renderClients();window.scrollTo(0,0);}
 function showAdd(){document.getElementById('newClient').value='';document.getElementById('newAddress').value='';document.getElementById('newType').value='';show('add');window.scrollTo(0,0);}
 function uid(){return 'c_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);}
-function createClient(){const name=document.getElementById('newClient').value.trim(),address=document.getElementById('newAddress').value.trim(),type=document.getElementById('newType').value;if(!name){alert('Please enter client name.');return}const c={id:uid(),name,address,type,checks:{}};db.clients.unshift(c);persist();openClient(c.id);}
 function totalChecks(){const t=document.getElementById('checkTemplate');return t&&t.content?t.content.querySelectorAll('input[type=checkbox]').length:0;}
 function progress(c){const done=Object.values(c.checks||{}).filter(Boolean).length;return totalChecks()?Math.round(done/totalChecks()*100):0;}
 function esc(s){return String(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
-function renderClients(){const el=document.getElementById('clientList');el.innerHTML='';document.getElementById('clientCount').textContent=db.clients.length+' client'+(db.clients.length===1?'':'s');if(!db.clients.length){el.innerHTML='<div class="card" style="text-align:center;color:#777">No clients yet.<br><br>Tap + ADD CLIENT to create your first kitchen.</div>';return}db.clients.forEach(c=>{const d=document.createElement('div');d.className='client';d.onclick=()=>openClient(c.id);d.innerHTML='<div><strong>'+esc(c.name)+'</strong><small>'+esc(c.address||'No site address')+' • '+esc(c.type||'Kitchen type not selected')+'</small></div><div class="pct">'+progress(c)+'%</div>';el.appendChild(d);});}
-function openClient(id){currentId=id;const c=db.clients.find(x=>x.id===id);if(!c)return;document.getElementById('detailName').textContent=c.name;document.getElementById('detailClient').value=c.name;document.getElementById('detailAddress').value=c.address||'';document.getElementById('detailType').value=c.type||'';const box=document.getElementById('checklist');box.innerHTML=document.getElementById('checkTemplate').innerHTML;box.querySelectorAll('input[type=checkbox]').forEach(cb=>{cb.checked=!!c.checks[cb.dataset.key];cb.onchange=()=>{c.checks[cb.dataset.key]=cb.checked;persist();updateDetail();}});show('detail');updateDetail();window.scrollTo(0,0);}
+function showSyncError(msg){
+  let n=document.getElementById('syncNotice');
+  if(!n){n=document.createElement('div');n.id='syncNotice';n.className='notice';document.getElementById('top').prepend(n);}
+  n.textContent=msg;
+}
+async function saveClient(c){
+  if(!ready)return;
+  const payload={id:c.id,name:c.name||'',address:c.address||'',type:c.type||'',checks:c.checks||{},createdAt:c.createdAt||Date.now(),updatedAt:Date.now()};
+  saveQueue=saveQueue.then(()=>setDoc(doc(firestore,'clients',c.id),payload));
+  try{await saveQueue;}catch(e){console.error(e);showSyncError('Could not save this change. Please check your internet connection and Firebase access.');}
+}
+async function createClient(){
+  const name=document.getElementById('newClient').value.trim(),address=document.getElementById('newAddress').value.trim(),type=document.getElementById('newType').value;
+  if(!name){alert('Please enter client name.');return}
+  const c={id:uid(),name,address,type,checks:{},createdAt:Date.now()};
+  db.clients.unshift(c);renderClients();openClient(c.id);await saveClient(c);
+}
+function renderClients(){
+  const el=document.getElementById('clientList');el.innerHTML='';
+  document.getElementById('clientCount').textContent=db.clients.length+' client'+(db.clients.length===1?'':'s');
+  if(!db.clients.length){el.innerHTML='<div class="card" style="text-align:center;color:#777">No clients yet.<br><br>Tap + ADD CLIENT to create your first kitchen.</div>';return}
+  db.clients.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).forEach(c=>{
+    const d=document.createElement('div');d.className='client';d.onclick=()=>openClient(c.id);
+    d.innerHTML='<div><strong>'+esc(c.name)+'</strong><small>'+esc(c.address||'No site address')+' • '+esc(c.type||'Kitchen type not selected')+'</small></div><div class="pct">'+progress(c)+'%</div>';
+    el.appendChild(d);
+  });
+}
+function openClient(id){
+  currentId=id;const c=db.clients.find(x=>x.id===id);if(!c)return;
+  document.getElementById('detailName').textContent=c.name;document.getElementById('detailClient').value=c.name;document.getElementById('detailAddress').value=c.address||'';document.getElementById('detailType').value=c.type||'';
+  const box=document.getElementById('checklist');box.innerHTML=document.getElementById('checkTemplate').innerHTML;
+  box.querySelectorAll('input[type=checkbox]').forEach(cb=>{cb.checked=!!c.checks[cb.dataset.key];cb.onchange=async()=>{c.checks[cb.dataset.key]=cb.checked;updateDetail();renderClients();await saveClient(c);}});
+  show('detail');updateDetail();window.scrollTo(0,0);
+}
 function updateDetail(){const c=db.clients.find(x=>x.id===currentId);if(!c)return;const p=progress(c);document.getElementById('detailProgress').textContent=p+'% complete';document.getElementById('progressBox').textContent='QC PROGRESS: '+p+'% — '+Object.values(c.checks||{}).filter(Boolean).length+' checks completed';}
-function saveMeta(){const c=db.clients.find(x=>x.id===currentId);if(!c)return;c.name=document.getElementById('detailClient').value.trim()||'Unnamed Client';c.address=document.getElementById('detailAddress').value.trim();c.type=document.getElementById('detailType').value;persist();document.getElementById('detailName').textContent=c.name;updateDetail();}
-function resetClient(){if(!confirm('Reset every checklist item for this client?'))return;db.clients.find(x=>x.id===currentId).checks={};persist();openClient(currentId);}
-function deleteClient(){if(!confirm('Delete this client and its checklist?'))return;db.clients=db.clients.filter(x=>x.id!==currentId);persist();showHome();}
+async function saveMeta(){const c=db.clients.find(x=>x.id===currentId);if(!c)return;c.name=document.getElementById('detailClient').value.trim()||'Unnamed Client';c.address=document.getElementById('detailAddress').value.trim();c.type=document.getElementById('detailType').value;document.getElementById('detailName').textContent=c.name;updateDetail();renderClients();await saveClient(c);}
+async function resetClient(){if(!confirm('Reset every checklist item for this client?'))return;const c=db.clients.find(x=>x.id===currentId);if(!c)return;c.checks={};await saveClient(c);openClient(currentId);}
+async function deleteClient(){if(!confirm('Delete this client and its checklist?'))return;const id=currentId;db.clients=db.clients.filter(x=>x.id!==id);showHome();try{await deleteDoc(doc(firestore,'clients',id));}catch(e){console.error(e);showSyncError('Could not delete the client from the shared database.');}}
 async function shareApp(){const url=location.href;try{if(navigator.share)await navigator.share({title:'Kitchen QC',text:'Open the Kitchen QC master app',url});else{await navigator.clipboard.writeText(url);alert('App link copied. Send it to your coworkers.');}}catch(e){}}
+
+// Firebase authentication + real-time shared client list
+onAuthStateChanged(auth, user=>{
+  if(!user)return;
+  ready=true;
+  onSnapshot(collection(firestore,'clients'), snap=>{
+    db.clients=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderClients();
+    if(currentId)openClient(currentId);
+  }, err=>{console.error(err);showSyncError('Firebase is connected, but access to the shared data was denied. Please check Firebase Authentication and Firestore Rules.');});
+});
+signInAnonymously(auth).catch(err=>{console.error(err);showSyncError('Firebase sign-in is not enabled yet. Please enable Anonymous sign-in in Firebase Authentication.');});
+
 renderClients();
 </script>
 <script>if("serviceWorker" in navigator && location.protocol!=="file:")navigator.serviceWorker.register("./sw.js").catch(()=>{});</script>
