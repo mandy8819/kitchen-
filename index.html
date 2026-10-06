@@ -6,8 +6,8 @@
 <style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f3f4f6;color:#20252b;font-family:Arial,Helvetica,sans-serif}
 header{background:#20252b;color:white;padding:18px 14px;text-align:center}h1{margin:0;font-size:21px}header p{margin:5px 0 0;color:#cbd0d6;font-size:12px}
-.login-screen{min-height:calc(100vh - 72px);display:flex;align-items:center;justify-content:center;padding:28px 20px;background-image:linear-gradient(90deg,rgba(7,16,26,.42) 0%,rgba(7,16,26,.22) 48%,rgba(7,16,26,.10) 100%),url('https://images.unsplash.com/photo-1556912173-46c336c7fd55?auto=format&fit=crop&w=1800&q=90');background-size:cover;background-position:center;color:#fff}
-.login-card{width:100%;max-width:430px;background:rgba(255,255,255,.91);color:#20252b;border-radius:28px;padding:34px 28px;box-shadow:0 24px 70px #0009;backdrop-filter:blur(6px)}
+.login-screen{min-height:calc(100vh - 72px);display:flex;align-items:center;justify-content:center;padding:28px 20px;background-image:linear-gradient(90deg,rgba(8,14,18,.28) 0%,rgba(8,14,18,.12) 52%,rgba(8,14,18,.05) 100%),url('https://images.unsplash.com/photo-1765371515651-faa86f08f0ae?auto=format&fit=crop&w=1600&q=90');background-size:cover;background-position:center;color:#fff}
+.login-card{width:100%;max-width:430px;background:rgba(255,255,255,.88);color:#20252b;border-radius:28px;padding:34px 28px;box-shadow:0 24px 70px #0009;backdrop-filter:blur(3px)}
 .login-brand{font-size:11px;letter-spacing:2.5px;color:#a67c32;font-weight:800;text-align:center;margin-bottom:10px}
 .login-card h2{margin:0;text-align:center;font-size:29px;letter-spacing:1px}
 .login-card p{margin:8px 0 24px;text-align:center;color:#6b7280;font-size:13px}
@@ -417,7 +417,7 @@ function renderClients(){
     const cls=p>=100?'complete':p>0?'inprogress':'';
     const d=document.createElement('div');d.className='project-card';d.onclick=()=>openClient(c.id);
     const photo=c.photo||'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=75';
-    d.innerHTML='<div class="project-photo" style="background-image:url(\''+photo+'\')"><div class="project-status '+cls+'">'+status+'</div></div><div class="project-content"><div class="project-top"><div><div class="project-name">'+esc(c.name)+'</div><div class="project-meta">⌖ '+esc(c.address||'No site address')+'<br>'+esc(c.type||'Kitchen type not selected')+'</div></div></div><div class="project-progress"><span style="width:'+p+'%"></span></div><div class="project-bottom"><span>QC PROGRESS</span><strong>'+p+'%</strong></div><div class="project-open">OPEN CHECKLIST <span>→</span></div></div>';
+    d.innerHTML='<div class="project-photo" style="background-image:url(\''+photo+'\')"><div class="project-status '+cls+'">'+status+'</div></div><div class="project-content"><div class="project-top"><div><div class="project-name">'+esc(c.name)+'</div><div class="project-meta">⌖ '+esc(c.address||'No site address')+'<br>'+esc(c.type||'Kitchen type not selected')+'</div></div><div class="more">•••</div></div><div class="project-progress"><span style="width:'+p+'%"></span></div><div class="project-bottom"><span>QC PROGRESS</span><strong>'+p+'%</strong></div><div class="project-open">OPEN CHECKLIST <span>→</span></div></div>';
     el.appendChild(d);
   });
 }
@@ -445,10 +445,10 @@ async function loginUser(){
   err.textContent='';
   if(!email||!password){err.textContent='Please enter your email and password.';return;}
   btn.disabled=true;btn.innerHTML='SIGNING IN...';
+  manualLoginSession=true;
+  sessionStorage.setItem('kqc_manual_login','1');
   try{
     await signInWithEmailAndPassword(auth,email,password);
-    manualLoginSession=true;
-    sessionStorage.setItem('kqc_manual_login','1');
   }catch(e){
     console.error(e);
     manualLoginSession=false;
@@ -498,7 +498,7 @@ onAuthStateChanged(auth, user=>{
     appMain.classList.add('app-hidden');
     login.classList.remove('app-hidden');
     header?.classList.add('login-mode');
-    if(menuToggle){menuToggle.style.display='none';menuToggle.disabled=true;menuToggle.style.opacity='1';}
+    if(menuToggle){menuToggle.style.display='block';menuToggle.disabled=true;menuToggle.style.opacity='1';}
     logout.style.display='none';
     signed.textContent='';
     document.getElementById('profileMenu')?.classList.add('hidden');
