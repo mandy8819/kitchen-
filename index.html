@@ -93,7 +93,7 @@ body{background:#f4f3f0;color:#17202b;padding-bottom:76px}
 @media(max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.hero{min-height:290px}.hero-content{height:245px}.hero-script{font-size:20px}.project-photo{height:155px}}
 </style></head><body>
 <header class="app-header">
-  <button class="icon-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
+  <button id="menuToggle" class="icon-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
   <div class="header-brand"><div>KITCHEN QC</div><span id="signedInUser"></span></div>
   <div class="header-actions">
     <button class="icon-btn bell-btn" onclick="toggleNotifications()" aria-label="Notifications">🔔<span id="notifBadge" class="notif-badge">0</span></button>
@@ -466,6 +466,16 @@ function markNotificationsRead(){lastSeenNotifications=Date.now();localStorage.s
 function showAllProjects(){showHome();document.getElementById('projectSearch')?.focus();}
 function showReports(){alert('Reports section will be added next.');}
 window.toggleMenu=toggleMenu;window.toggleProfile=toggleProfile;window.toggleNotifications=toggleNotifications;window.markNotificationsRead=markNotificationsRead;window.showAllProjects=showAllProjects;window.showReports=showReports;
+// Close open popovers when the user taps anywhere outside them.
+function closeTopPopovers(e){
+  const target=e.target;
+  if(target && target.closest && (target.closest('#profileMenu')||target.closest('.avatar')||target.closest('#notifPanel')||target.closest('.bell-btn')||target.closest('#sideMenu')||target.closest('#menuToggle'))) return;
+  document.getElementById('profileMenu')?.classList.add('hidden');
+  document.getElementById('sideMenu')?.classList.add('hidden');
+  document.getElementById('notifPanel')?.classList.add('hidden');
+}
+document.addEventListener('click',closeTopPopovers);
+document.addEventListener('pointerup',closeTopPopovers);
 function updateNotificationBadge(){const updates=db.activity.filter(a=>Number(a.createdAt||0)>lastSeenNotifications);const b=document.getElementById('notifBadge');if(b){b.textContent=updates.length>9?'9+':String(updates.length);b.style.display=updates.length?'flex':'none';}}
 function renderNotifications(){const el=document.getElementById('notifList');const updates=db.activity.filter(a=>Number(a.createdAt||0)>lastSeenNotifications).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));if(!updates.length){el.innerHTML='<div class="notif-empty">You are up to date.</div>';return;}el.innerHTML=updates.slice(0,10).map(a=>'<div class="notif-item"><b>'+esc(a.clientName)+'</b><span>'+esc(a.message)+' • '+esc(a.actorEmail||'Team member')+'</span></div>').join('');}
 function compressImage(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const max=900,scale=Math.min(1,max/Math.max(im.width,im.height));const cv=document.createElement('canvas');cv.width=Math.max(1,Math.round(im.width*scale));cv.height=Math.max(1,Math.round(im.height*scale));cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);resolve(cv.toDataURL('image/jpeg',.55));};im.onerror=reject;im.src=r.result;};r.onerror=reject;r.readAsDataURL(file);});}
