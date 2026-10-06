@@ -96,7 +96,7 @@ body{background:#f4f3f0;color:#17202b;padding-bottom:76px}
   <button class="icon-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
   <div class="header-brand"><div>KITCHEN QC</div><span id="signedInUser"></span></div>
   <div class="header-actions">
-    <button class="icon-btn bell-btn" onclick="toggleNotifications()" aria-label="Notifications">♧<span id="notifBadge" class="notif-badge">0</span></button>
+    <button class="icon-btn bell-btn" onclick="toggleNotifications()" aria-label="Notifications">🔔<span id="notifBadge" class="notif-badge">0</span></button>
     <button class="avatar" onclick="toggleProfile()" aria-label="Profile">M</button>
   </div>
   <div id="profileMenu" class="popover hidden"><strong id="profileEmail"></strong><button class="logout" id="logoutBtn" onclick="logoutUser()">LOG OUT</button></div>
@@ -345,7 +345,7 @@ body{background:#f4f3f0;color:#17202b;padding-bottom:76px}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyATSeqrOWKFfbQWWRAYFIFoY5DrZI88FKI",
@@ -359,10 +359,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const firestore = getFirestore(app);
-let db={clients:[]};
+let db={clients:[],activity:[]};
 let currentId=null;
 let ready=false;
 let saveQueue=Promise.resolve();
+let activityQueue=Promise.resolve();
 
 function show(id){['home','add','detail'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==id));}
 function showHome(){currentId=null;show('home');renderClients();window.scrollTo(0,0);}
@@ -376,17 +377,20 @@ function showSyncError(msg){
   if(!n){n=document.createElement('div');n.id='syncNotice';n.className='notice';document.getElementById('top').prepend(n);}
   n.textContent=msg;
 }
-async function saveClient(c){
+async function saveClient(c,action){
   if(!ready)return;
-  const payload={id:c.id,name:c.name||'',address:c.address||'',type:c.type||'',checks:c.checks||{},photo:c.photo||'',createdAt:c.createdAt||Date.now(),updatedAt:Date.now()};
+  const now=Date.now(), user=auth.currentUser;
+  const actorEmail=user?.email||'Team member', actorUid=user?.uid||'';
+  const payload={id:c.id,name:c.name||'',address:c.address||'',type:c.type||'',checks:c.checks||{},photo:c.photo||'',createdAt:c.createdAt||now,updatedAt:now,updatedByEmail:actorEmail,updatedByUid:actorUid};
+  c.updatedAt=now;c.updatedByEmail=actorEmail;
   saveQueue=saveQueue.then(()=>setDoc(doc(firestore,'clients',c.id),payload));
-  try{await saveQueue;}catch(e){console.error(e);showSyncError('Could not save this change. Please check your internet connection and Firebase access.');}
+  try{await saveQueue;if(action){activityQueue=activityQueue.then(()=>addDoc(collection(firestore,'activity'),{clientId:c.id,clientName:c.name||'Kitchen',message:action,actorEmail,actorUid,createdAt:now}));await activityQueue;}}catch(e){console.error(e);showSyncError('Could not save this change. Please check your internet connection and Firebase access.');}
 }
 async function createClient(){
   const name=document.getElementById('newClient').value.trim(),address=document.getElementById('newAddress').value.trim(),type=document.getElementById('newType').value;
   if(!name){alert('Please enter client name.');return}
   const c={id:uid(),name,address,type,checks:{},createdAt:Date.now()};
-  db.clients.unshift(c);renderClients();openClient(c.id);await saveClient(c);
+  db.clients.unshift(c);renderClients();openClient(c.id);await saveClient(c,'Created a new kitchen project');
 }
 function renderClients(){
   const el=document.getElementById('clientList');el.innerHTML='';
@@ -420,13 +424,13 @@ function openClient(id){
   currentId=id;const c=db.clients.find(x=>x.id===id);if(!c)return;
   document.getElementById('detailName').textContent=c.name;document.getElementById('detailClient').value=c.name;document.getElementById('detailAddress').value=c.address||'';document.getElementById('detailType').value=c.type||'';
   const box=document.getElementById('checklist');box.innerHTML=document.getElementById('checkTemplate').innerHTML;
-  box.querySelectorAll('input[type=checkbox]').forEach(cb=>{cb.checked=!!c.checks[cb.dataset.key];cb.onchange=async()=>{c.checks[cb.dataset.key]=cb.checked;updateDetail();renderClients();await saveClient(c);}});
+  box.querySelectorAll('input[type=checkbox]').forEach(cb=>{cb.checked=!!c.checks[cb.dataset.key];cb.onchange=async()=>{c.checks[cb.dataset.key]=cb.checked;const label=cb.parentElement?.querySelector("span")?.textContent||cb.dataset.key;updateDetail();renderClients();await saveClient(c,(cb.checked?"Completed: ":"Unchecked: ")+label);}});
   show('detail');updateDetail();renderPhoto(c);window.scrollTo(0,0);
 }
 function updateDetail(){const c=db.clients.find(x=>x.id===currentId);if(!c)return;const p=progress(c);document.getElementById('detailProgress').textContent=p+'% complete';document.getElementById('progressBox').textContent='QC PROGRESS: '+p+'% — '+Object.values(c.checks||{}).filter(Boolean).length+' checks completed';}
-async function saveMeta(){const c=db.clients.find(x=>x.id===currentId);if(!c)return;c.name=document.getElementById('detailClient').value.trim()||'Unnamed Client';c.address=document.getElementById('detailAddress').value.trim();c.type=document.getElementById('detailType').value;document.getElementById('detailName').textContent=c.name;updateDetail();renderClients();await saveClient(c);}
-async function resetClient(){if(!confirm('Reset every checklist item for this client?'))return;const c=db.clients.find(x=>x.id===currentId);if(!c)return;c.checks={};await saveClient(c);openClient(currentId);}
-async function deleteClient(){if(!confirm('Delete this client and its checklist?'))return;const id=currentId;db.clients=db.clients.filter(x=>x.id!==id);showHome();try{await deleteDoc(doc(firestore,'clients',id));}catch(e){console.error(e);showSyncError('Could not delete the client from the shared database.');}}
+async function saveMeta(){const c=db.clients.find(x=>x.id===currentId);if(!c)return;c.name=document.getElementById('detailClient').value.trim()||'Unnamed Client';c.address=document.getElementById('detailAddress').value.trim();c.type=document.getElementById('detailType').value;document.getElementById('detailName').textContent=c.name;updateDetail();renderClients();await saveClient(c,'Updated project details');}
+async function resetClient(){if(!confirm('Reset every checklist item for this client?'))return;const c=db.clients.find(x=>x.id===currentId);if(!c)return;c.checks={};await saveClient(c,'Reset the entire checklist');openClient(currentId);}
+async function deleteClient(){if(!confirm('Delete this client and its checklist?'))return;const id=currentId;db.clients=db.clients.filter(x=>x.id!==id);showHome();try{const user=auth.currentUser;await addDoc(collection(firestore,'activity'),{clientId:id,clientName:(db.clients.find(x=>x.id===id)?.name||'Kitchen'),message:'Deleted the kitchen project',actorEmail:user?.email||'Team member',actorUid:user?.uid||'',createdAt:Date.now()});await deleteDoc(doc(firestore,'clients',id));}catch(e){console.error(e);showSyncError('Could not delete the client from the shared database.');}}
 async function shareApp(){const url=location.href;try{if(navigator.share)await navigator.share({title:'Kitchen QC',text:'Open the Kitchen QC master app',url});else{await navigator.clipboard.writeText(url);alert('App link copied. Send it to your coworkers.');}}catch(e){}}
 window.showAdd=showAdd;window.showHome=showHome;window.createClient=createClient;window.resetClient=resetClient;window.deleteClient=deleteClient;window.shareApp=shareApp;
 
@@ -459,18 +463,8 @@ function toggleMenu(){document.getElementById('sideMenu').classList.toggle('hidd
 function toggleProfile(){document.getElementById('profileMenu').classList.toggle('hidden');document.getElementById('sideMenu').classList.add('hidden');document.getElementById('notifPanel').classList.add('hidden');}
 function toggleNotifications(){document.getElementById('notifPanel').classList.toggle('hidden');document.getElementById('sideMenu').classList.add('hidden');document.getElementById('profileMenu').classList.add('hidden');if(!document.getElementById('notifPanel').classList.contains('hidden')){renderNotifications();}}
 function markNotificationsRead(){lastSeenNotifications=Date.now();localStorage.setItem('kqc_notif_seen',String(lastSeenNotifications));updateNotificationBadge();}
-function updateNotificationBadge(){const updates=db.clients.filter(c=Number(c.updatedAt||0)>lastSeenNotifications).length;const b=document.getElementById('notifBadge');if(b){b.textContent=updates>9?'9+':String(updates);b.style.display=updates?'flex':'none';}}
-function renderNotifications(){const el=document.getElementById('notifList');const updates=db.clients.filter(c=>Number(c.updatedAt||0)>lastSeenNotifications).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));if(!updates.length){el.innerHTML='<div class="notif-empty">You are up to date.</div>';return;}el.innerHTML=updates.slice(0,8).map(c=>'<div class="notif-item"><b>'+esc(c.name)+'</b><span>'+progress(c)+'% complete • recently updated</span></div>').join('');}
-function showAllProjects(){showHome();document.getElementById('projectSearch').value='';renderClients();window.scrollTo(0,420);}
-function showReports(){alert('Reports will be available in the next update.');}
-async function handleProjectPhoto(file){
-  if(!file||!currentId)return;
-  const c=db.clients.find(x=>x.id===currentId);if(!c)return;
-  try{
-    const data=await compressImage(file);
-    c.photo=data;c.updatedAt=Date.now();renderPhoto(c);renderClients();await saveClient(c);
-  }catch(e){alert('Could not add this photo. Please try another image.');}
-}
+function updateNotificationBadge(){const updates=db.activity.filter(a=>Number(a.createdAt||0)>lastSeenNotifications);const b=document.getElementById('notifBadge');if(b){b.textContent=updates.length>9?'9+':String(updates.length);b.style.display=updates.length?'flex':'none';}}
+function renderNotifications(){const el=document.getElementById('notifList');const updates=db.activity.filter(a=>Number(a.createdAt||0)>lastSeenNotifications).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));if(!updates.length){el.innerHTML='<div class="notif-empty">You are up to date.</div>';return;}el.innerHTML=updates.slice(0,10).map(a=>'<div class="notif-item"><b>'+esc(a.clientName)+'</b><span>'+esc(a.message)+' • '+esc(a.actorEmail||'Team member')+'</span></div>').join('');}
 function compressImage(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const max=900,scale=Math.min(1,max/Math.max(im.width,im.height));const cv=document.createElement('canvas');cv.width=Math.max(1,Math.round(im.width*scale));cv.height=Math.max(1,Math.round(im.height*scale));cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);resolve(cv.toDataURL('image/jpeg',.55));};im.onerror=reject;im.src=r.result;};r.onerror=reject;r.readAsDataURL(file);});}
 function renderPhoto(c){const el=document.getElementById('projectPhotoPreview');if(!el)return;if(c.photo){el.innerHTML='<img src="'+c.photo+'" alt="Project photo">';}else el.textContent='No project photo added';}
 onAuthStateChanged(auth, user=>{
@@ -495,6 +489,11 @@ onAuthStateChanged(auth, user=>{
     db.clients=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderClients();updateNotificationBadge();
   }, err=>{console.error(err);showSyncError('Firebase is connected, but access to the shared data was denied. Please check Firebase Authentication and Firestore Rules.');});
+  onSnapshot(query(collection(firestore,'activity'),orderBy('createdAt','desc'),limit(100)), snap=>{
+    db.activity=snap.docs.map(d=>({id:d.id,...d.data()}));
+    updateNotificationBadge();
+    if(!document.getElementById('notifPanel').classList.contains('hidden'))renderNotifications();
+  }, err=>{console.error(err);});
 });
 
 renderClients();
