@@ -93,7 +93,24 @@ body{background:#f4f3f0;color:#17202b;padding-bottom:0}
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:68px;background:#101722;color:#aeb6c0;display:flex;justify-content:space-around;align-items:center;z-index:60;border-top:1px solid #2b3440;box-shadow:0 -6px 20px #0002}.bottom-nav button{background:transparent;color:#aeb6c0;padding:7px 12px;font-size:9px;display:flex;flex-direction:column;align-items:center;gap:3px}.bottom-nav button span{font-size:19px}.bottom-nav button.active{color:#d2ad5c}
 .hidden{display:none!important}
 @media(max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.hero{min-height:290px}.hero-content{height:245px}.hero-script{font-size:20px}.project-photo{height:155px}}
-html,body{min-height:100%;}</style></head><body>
+html,body{min-height:100%;}
+/* Checklist photo evidence */
+.check-wrap{border-top:1px solid #eee;background:#fff}
+.check-wrap>.check{border-top:0}
+.check-evidence{display:flex;align-items:center;gap:8px;padding:0 13px 11px 46px;flex-wrap:wrap}
+.evidence-btn{position:relative;display:inline-flex;align-items:center;gap:6px;background:#f4f0e7;color:#8d6b32;border:1px solid #dfcfad;border-radius:8px;padding:8px 10px;font-size:10px;font-weight:900;letter-spacing:.3px;cursor:pointer}
+.evidence-btn input{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+.evidence-status{font-size:10px;color:#7b828c}
+.evidence-thumb{width:54px;height:40px;border-radius:7px;object-fit:cover;border:1px solid #ddd;display:none}
+.evidence-thumb.show{display:block}
+.evidence-view{background:#111a25;color:#fff;border:0;border-radius:8px;padding:8px 10px;font-size:10px;font-weight:900;display:none}
+.evidence-view.show{display:inline-flex}
+.evidence-summary{margin:0 0 12px;padding:13px 14px;background:#111a25;color:#fff;border-radius:13px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.evidence-summary b{font-size:11px;letter-spacing:1px}.evidence-summary span{font-size:10px;color:#d6b76c}
+@media(max-width:520px){.check-evidence{padding-left:46px}.evidence-btn{padding:8px 9px}}
+<style>
+#inspectionSummary{margin:4px 0 18px}.summary-main{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;background:#101820;border:1px solid #2c3841;border-radius:22px;padding:13px;box-shadow:0 16px 45px rgba(10,18,25,.16)}.summary-main div{background:rgba(255,255,255,.055);border-radius:14px;padding:10px 6px;text-align:center}.summary-main span{display:block;color:#aeb8c0;font-size:8px;font-weight:900;letter-spacing:.12em}.summary-main strong{display:block;color:#f6f0e6;font-size:20px;margin-top:4px}.summary-status{margin-top:8px;border-radius:14px;padding:11px 13px;text-align:center;font-size:10px;font-weight:900;letter-spacing:.08em}.summary-status.on-track{background:#e8f4ec;color:#28683d}.summary-status.action-required{background:#fae7e5;color:#9d342e}.inspection-stage{margin:24px 0 34px}.inspection-stage-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:9px}.stage-kicker{font-size:9px;letter-spacing:.19em;color:#b18a45;font-weight:900}.inspection-stage-head h3{margin:4px 0 0;font-size:19px;line-height:1.2;color:#17202b}.stage-count{font-size:9px;color:#6e777e;font-weight:900;text-align:right}.stage-progress-track{height:5px;background:#e2e0da;border-radius:10px;overflow:hidden;margin-bottom:12px}.stage-progress-track span{display:block;height:100%;width:0;background:linear-gradient(90deg,#ae8440,#e0bd78);border-radius:10px;transition:width .25s}.inspection-card{background:#fff;border:1px solid #e1e3e5;border-radius:20px;margin:10px 0;padding:16px;box-shadow:0 8px 28px rgba(20,30,40,.055);transition:.2s}.inspection-card:hover{transform:translateY(-1px);box-shadow:0 12px 32px rgba(20,30,40,.08)}.inspection-card.pass{border-color:#b9d5c2}.inspection-card.issue{border-color:#dbaaa5;background:#fffdfd}.inspection-card.n-a{border-color:#d4d8db}.inspection-card-top{display:grid;grid-template-columns:36px 1fr auto;gap:11px;align-items:center}.check-number{width:34px;height:34px;border-radius:11px;background:#f4efe5;color:#9b7437;display:grid;place-items:center;font-size:10px;font-weight:900}.check-question{font-size:14px;font-weight:800;line-height:1.38;color:#1c2730}.check-state-pill{font-size:8px;font-weight:900;letter-spacing:.08em;color:#7d858b;background:#f0f1f2;border-radius:999px;padding:7px 9px;white-space:nowrap}.inspection-card.pass .check-state-pill{background:#e6f3ea;color:#2c6c41}.inspection-card.issue .check-state-pill{background:#fae5e3;color:#a03b34}.inspection-card.n-a .check-state-pill{background:#e9ecee;color:#59636a}.status-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:14px}.status-btn,.priority-btn,.photo-btn,.photo-view{border:0;border-radius:11px;padding:10px 7px;font-size:10px;font-weight:900;letter-spacing:.03em;cursor:pointer}.status-btn{background:#f1f2f3;color:#5d666d}.status-btn.pass.active{background:#dff0e5;color:#28683d}.status-btn.issue.active{background:#f8ddda;color:#9d3029}.status-btn.na.active{background:#e4e8eb;color:#4d5860}.inspection-extra{display:none;margin-top:13px;border-top:1px solid #ececeb;padding-top:14px}.inspection-card.issue .inspection-extra{display:block}.field-label{font-size:8px;font-weight:900;letter-spacing:.14em;color:#7a8287;margin-bottom:7px}.remark-input{width:100%;min-height:82px;resize:vertical;border:1px solid #dfe1e3;border-radius:13px;padding:11px;font:inherit;font-size:12px;outline:none;background:#fafafa}.remark-input:focus{border-color:#b28b4c;background:#fff}.priority-row{display:flex;align-items:center;gap:6px;margin-top:12px;flex-wrap:wrap}.priority-row>span{font-size:8px;font-weight:900;color:#777f84;letter-spacing:.11em;margin-right:auto}.priority-btn{background:#f1f2f3;color:#656d73;padding:8px 9px}.priority-btn.active{background:#18232b;color:#f5efe4}.evidence-row{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:15px;padding:12px;border-radius:14px;background:#f7f6f3}.evidence-note{font-size:9px;color:#777f84}.photo-actions{display:flex;gap:6px;flex-shrink:0}.photo-btn{background:#17232b;color:#f6efe4;display:inline-flex;align-items:center;justify-content:center}.photo-view{background:#d9c08d;color:#263039;display:inline-flex}.inspection-card.issue .photo-btn{background:#9e3831}.inspection-card.issue .evidence-note{color:#9e3831;font-weight:800}.stage-next{width:100%;margin-top:10px;padding:14px;border:1px solid #d9c18f;background:#fffaf0;color:#8b6a32;border-radius:14px;font-weight:900;letter-spacing:.08em}.evidence-viewer{position:fixed;inset:0;background:rgba(5,10,14,.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:22px}.evidence-viewer.hidden{display:none}.evidence-viewer-inner{position:relative;max-width:900px;width:100%;text-align:center}.evidence-viewer img{max-width:100%;max-height:82vh;border-radius:16px;object-fit:contain}.evidence-close{position:absolute;right:0;top:-42px;border:0;background:#fff;color:#111;border-radius:50%;width:34px;height:34px;font-size:23px;line-height:1}@media(max-width:600px){.summary-main{grid-template-columns:repeat(3,1fr)}.summary-main div:first-child{grid-column:span 3}.inspection-card{padding:14px;border-radius:18px}.inspection-card-top{grid-template-columns:32px 1fr}.check-state-pill{grid-column:2;justify-self:start;margin-top:-4px}.evidence-row{align-items:flex-start;flex-direction:column}.photo-actions{width:100%}.photo-btn,.photo-view{flex:1;text-align:center}}
+</style></style></head><body>
 <header id="appHeader" class="app-header login-mode">
   <button id="menuToggle" class="icon-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
   <div class="header-brand"><div>KITCHEN QC</div><span id="signedInUser"></span></div>
@@ -161,13 +178,13 @@ html,body{min-height:100%;}</style></head><body>
 <div class="card"><label class="title">CLIENT NAME</label><input id="detailClient" type="text" onchange="saveMeta()">
 <label class="title">SITE ADDRESS</label><input id="detailAddress" type="text" onchange="saveMeta">
 <label class="title">KITCHEN TYPE</label><select id="detailType" onchange="saveMeta()"><option>Indian Kitchen</option><option>German Kitchen</option></select>
-<div class="progressbox" id="progressBox"></div>
+<div id="inspectionSummary"></div><div class="progressbox" id="progressBox"></div>
 <div class="photo-card">
   <div class="photo-head"><b>PROJECT PHOTO</b><span>FREE SHARED PHOTO</span></div>
   <div id="projectPhotoPreview" class="photo-preview">No project photo added</div>
   <label class="photo-upload"><input id="projectPhotoInput" type="file" accept="image/*" onchange="handleProjectPhoto(this.files[0])">＋ ADD / CHANGE PHOTO</label>
 </div><div class="actions"><button class="dark" onclick="shareApp()">SHARE APP LINK</button><button class="light" onclick="resetClient()">RESET CHECKLIST</button><button class="light" onclick="deleteClient()">DELETE CLIENT</button></div></div>
-<div id="checklist"></div></section>
+<div id="evidenceSummary" class="evidence-summary"><b>📷 SITE PHOTO EVIDENCE</b><span id="evidenceCount">0 photos attached</span></div><div id="checklist"></div></section>
 <template id="checkTemplate"><section class="stage" id="stage1"><div class="stage-title"><span>1. SITE MEASUREMENT — FIRST CHECK</span><a href="#top">TOP</a></div><div class="stage-note">Tick every point before moving to the next stage.</div><label class="check"><input type="checkbox" data-key="1-1"><span>Take final wall-to-wall measurement</span></label>
 <label class="check"><input type="checkbox" data-key="1-2"><span>Check diagonal measurement</span></label>
 <label class="check"><input type="checkbox" data-key="1-3"><span>Check floor level</span></label>
@@ -347,7 +364,7 @@ html,body{min-height:100%;}</style></head><body>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, addDoc, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyATSeqrOWKFfbQWWRAYFIFoY5DrZI88FKI",
@@ -366,13 +383,16 @@ let currentId=null;
 let ready=false;
 let saveQueue=Promise.resolve();
 let activityQueue=Promise.resolve();
+let evidenceUnsub=null;
+let evidenceByKey={};
 
 function show(id){['home','add','detail'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==id));}
 function showHome(){currentId=null;show('home');renderClients();window.scrollTo(0,0);}
 function showAdd(){document.getElementById('newClient').value='';document.getElementById('newAddress').value='';document.getElementById('newType').value='';show('add');window.scrollTo(0,0);}
 function uid(){return 'c_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);}
 function totalChecks(){const t=document.getElementById('checkTemplate');return t&&t.content?t.content.querySelectorAll('input[type=checkbox]').length:0;}
-function progress(c){const done=Object.values(c.checks||{}).filter(Boolean).length;return totalChecks()?Math.round(done/totalChecks()*100):0;}
+function checkState(v){if(v&&typeof v==='object')return v.status||'';return v===true?'PASS':'';}
+function progress(c){const vals=Object.values(c.checks||{});const done=vals.filter(v=>{const st=checkState(v);return st==='PASS'||st==='N/A';}).length;return totalChecks()?Math.round(done/totalChecks()*100):0;}
 function esc(s){return String(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
 function showSyncError(msg){
   let n=document.getElementById('syncNotice');
@@ -422,14 +442,121 @@ function renderClients(){
     el.appendChild(d);
   });
 }
-function openClient(id){
+async function openClient(id){
   currentId=id;const c=db.clients.find(x=>x.id===id);if(!c)return;
-  document.getElementById('detailName').textContent=c.name;document.getElementById('detailClient').value=c.name;document.getElementById('detailAddress').value=c.address||'';document.getElementById('detailType').value=c.type||'';
-  const box=document.getElementById('checklist');box.innerHTML=document.getElementById('checkTemplate').innerHTML;
-  box.querySelectorAll('input[type=checkbox]').forEach(cb=>{cb.checked=!!c.checks[cb.dataset.key];cb.onchange=async()=>{c.checks[cb.dataset.key]=cb.checked;const label=cb.parentElement?.querySelector("span")?.textContent||cb.dataset.key;updateDetail();renderClients();await saveClient(c,(cb.checked?"Completed: ":"Unchecked: ")+label);}});
-  show('detail');updateDetail();renderPhoto(c);window.scrollTo(0,0);
+  if(evidenceUnsub){evidenceUnsub();evidenceUnsub=null;} evidenceByKey={};
+  detailName.textContent=c.name;detailClient.value=c.name;detailAddress.value=c.address||'';detailType.value=c.type||'';
+
+  const box=document.getElementById('checklist');box.innerHTML='';
+  const tpl=document.getElementById('checkTemplate').content.cloneNode(true);
+  const stages=[...tpl.querySelectorAll('section.stage')];
+
+  stages.forEach((stage,si)=>{
+    const labels=[...stage.querySelectorAll('label.check')];
+    const title=(stage.querySelector('.stage-title span')?.textContent||('STAGE '+(si+1))).replace(/^\d+\.\s*/,'').trim();
+    const sec=document.createElement('section');sec.className='inspection-stage';sec.id='inspectionStage'+(si+1);
+    const head=document.createElement('div');head.className='inspection-stage-head';
+    head.innerHTML='<div><div class="stage-kicker">STAGE '+String(si+1).padStart(2,'0')+'</div><h3>'+esc(title)+'</h3></div><div class="stage-count"></div>';
+    sec.appendChild(head);
+    const bar=document.createElement('div');bar.className='stage-progress-track';bar.innerHTML='<span></span>';sec.appendChild(bar);
+
+    labels.forEach((lab,li)=>{
+      const key=lab.querySelector('input').dataset.key;
+      const question=lab.querySelector('span')?.textContent||key;
+      const saved=c.checks?.[key];
+      const state=typeof saved==='object'?(saved.status||''):(saved===true?'PASS':'');
+      const meta=typeof saved==='object'?saved:{};
+      const card=document.createElement('article');card.className='inspection-card '+(state?state.toLowerCase().replace('/','-'):'');card.dataset.key=key;
+      card.innerHTML='<div class="inspection-card-top"><div class="check-number">'+String(li+1).padStart(2,'0')+'</div><div class="check-question">'+esc(question)+'</div><div class="check-state-pill">'+(state||'NOT CHECKED')+'</div></div>'+
+        '<div class="status-row"><button type="button" class="status-btn pass '+(state==='PASS'?'active':'')+'" data-status="PASS">✓ PASS</button><button type="button" class="status-btn issue '+(state==='ISSUE'?'active':'')+'" data-status="ISSUE">! ISSUE</button><button type="button" class="status-btn na '+(state==='N/A'?'active':'')+'" data-status="N/A">— N/A</button></div>'+
+        '<div class="inspection-extra"><div class="field-label">OBSERVATION / REMARK</div><textarea class="remark-input" placeholder="Describe the issue, location or required correction...">'+esc(meta.remark||'')+'</textarea>'+
+        '<div class="priority-row"><span>PRIORITY</span><button type="button" class="priority-btn '+((meta.priority||'Medium')==='High'?'active':'')+'" data-priority="High">HIGH</button><button type="button" class="priority-btn '+((meta.priority||'Medium')==='Medium'?'active':'')+'" data-priority="Medium">MEDIUM</button><button type="button" class="priority-btn '+((meta.priority||'Medium')==='Low'?'active':'')+'" data-priority="Low">LOW</button></div>'+
+        '<div class="evidence-row"><div><div class="field-label">PHOTO EVIDENCE</div><div class="evidence-note"></div></div><div class="photo-actions"><label class="photo-btn">📷 CAMERA / GALLERY<input class="evidence-input" type="file" accept="image/*" capture="environment" hidden></label><button type="button" class="photo-view" style="display:none">VIEW</button></div></div></div>';
+
+      card.querySelectorAll('.status-btn').forEach(btn=>btn.onclick=async()=>{
+        const st=btn.dataset.status;const old=typeof c.checks[key]==='object'?c.checks[key]:{};
+        c.checks[key]={...old,status:st,priority:old.priority||'Medium',remark:old.remark||''};
+        card.className='inspection-card '+st.toLowerCase().replace('/','-');card.querySelector('.check-state-pill').textContent=st;
+        card.querySelectorAll('.status-btn').forEach(x=>x.classList.toggle('active',x===btn));
+        await saveClient(c,(st==='ISSUE'?'Marked ISSUE: ':'Marked '+st+': ')+question);renderClients();updateDetail();renderEvidenceUI();
+      });
+      card.querySelector('.remark-input').onblur=async e=>{
+        const old=typeof c.checks[key]==='object'?c.checks[key]:{};
+        c.checks[key]={...old,status:old.status||state,priority:old.priority||'Medium',remark:e.target.value};
+        await saveClient(c,'Updated remark: '+question);
+      };
+      card.querySelectorAll('.priority-btn').forEach(btn=>btn.onclick=async()=>{
+        const old=typeof c.checks[key]==='object'?c.checks[key]:{};
+        c.checks[key]={...old,status:old.status||state,priority:btn.dataset.priority,remark:old.remark||''};
+        card.querySelectorAll('.priority-btn').forEach(x=>x.classList.toggle('active',x===btn));
+        await saveClient(c,'Changed priority to '+btn.dataset.priority+': '+question);
+      });
+      card.querySelector('.evidence-input').onchange=e=>{const file=e.target.files?.[0];if(file)handleCheckPhoto(c,key,question,file);};
+      card.querySelector('.photo-view').onclick=()=>viewEvidence(key);
+      sec.appendChild(card);
+    });
+    const next=document.createElement('button');next.type='button';next.className='stage-next';next.textContent=si<stages.length-1?'NEXT STAGE →':'FINAL HANDOVER REVIEW →';
+    next.onclick=()=>document.getElementById('inspectionStage'+(si+2))?.scrollIntoView({behavior:'smooth',block:'start'});
+    sec.appendChild(next);box.appendChild(sec);
+  });
+
+  evidenceUnsub=onSnapshot(query(collection(firestore,'evidence'),where('clientId','==',id)),snap=>{
+    evidenceByKey={};snap.forEach(d=>{const v=d.data();evidenceByKey[v.checkKey]=v;});renderEvidenceUI();
+  },err=>console.error(err));
+
+  show('detail');updateDetail();renderPhoto(c);renderEvidenceUI();window.scrollTo(0,0);
 }
-function updateDetail(){const c=db.clients.find(x=>x.id===currentId);if(!c)return;const p=progress(c);document.getElementById('detailProgress').textContent=p+'% complete';document.getElementById('progressBox').textContent='QC PROGRESS: '+p+'% — '+Object.values(c.checks||{}).filter(Boolean).length+' checks completed';}
+
+function renderEvidenceUI(){
+  const box=document.getElementById('checklist');if(!box)return;let count=0;
+  box.querySelectorAll('.inspection-card').forEach(card=>{
+    const e=evidenceByKey[card.dataset.key],view=card.querySelector('.photo-view'),note=card.querySelector('.evidence-note');
+    if(e?.photo){count++;if(view)view.style.display='inline-flex';if(note)note.textContent='Evidence photo saved';}
+    else{if(view)view.style.display='none';if(note)note.textContent=card.classList.contains('issue')?'Photo evidence required for this issue':'Photo evidence recommended';}
+  });
+  const n=document.getElementById('evidenceCount');if(n)n.textContent=count+' photo'+(count===1?'':'s')+' attached';
+  const c=db.clients.find(x=>x.id===currentId);if(c)renderInspectionSummary(c);
+}
+
+async function handleCheckPhoto(c,key,label,file){
+  if(!file)return;
+  try{
+    const photo=await compressImage(file),user=auth.currentUser,now=Date.now();
+    await setDoc(doc(firestore,'evidence',c.id+'_'+key),{clientId:c.id,clientName:c.name||'Kitchen',checkKey:key,checkLabel:label,photo,actorEmail:user?.email||'Team member',actorUid:user?.uid||'',createdAt:now,updatedAt:now});
+    activityQueue=activityQueue.then(()=>addDoc(collection(firestore,'activity'),{clientId:c.id,clientName:c.name||'Kitchen',message:'Added photo evidence: '+label,actorEmail:user?.email||'Team member',actorUid:user?.uid||'',createdAt:now}));await activityQueue;
+  }catch(e){console.error(e);alert('Could not save this photo. Please try again.');}
+}
+
+function viewEvidence(key){
+  const e=evidenceByKey[key];if(!e?.photo)return;
+  let v=document.getElementById('evidenceViewer');
+  if(!v){v=document.createElement('div');v.id='evidenceViewer';v.className='evidence-viewer hidden';v.innerHTML='<div class="evidence-viewer-inner"><button class="evidence-close" type="button">×</button><div class="evidence-viewer-title">KITCHEN QC — PHOTO EVIDENCE</div><img></div>';document.body.appendChild(v);v.querySelector('.evidence-close').onclick=()=>v.classList.add('hidden');v.onclick=e2=>{if(e2.target===v)v.classList.add('hidden');};}
+  v.querySelector('img').src=e.photo;v.classList.remove('hidden');
+}
+
+function renderInspectionSummary(c){
+  const host=document.getElementById('inspectionSummary');if(!host)return;
+  const cards=[...document.querySelectorAll('.inspection-card')],passed=cards.filter(x=>x.classList.contains('pass')).length,issues=cards.filter(x=>x.classList.contains('issue')).length,na=cards.filter(x=>x.classList.contains('n-a')).length,photos=Object.keys(evidenceByKey||{}).length,high=Object.values(c.checks||{}).filter(v=>typeof v==='object'&&v.status==='ISSUE'&&v.priority==='High').length;
+  host.innerHTML='<div class="summary-main"><div><span>QC SCORE</span><strong>'+progress(c)+'%</strong></div><div><span>PASSED</span><strong>'+passed+'</strong></div><div><span>ISSUES</span><strong>'+issues+'</strong></div><div><span>N/A</span><strong>'+na+'</strong></div><div><span>PHOTOS</span><strong>'+photos+'</strong></div><div><span>HIGH PRIORITY</span><strong>'+high+'</strong></div></div><div class="summary-status '+(issues?'action-required':'on-track')+'">'+(issues?'⚠ ACTION REQUIRED — '+issues+' inspection item'+(issues>1?'s':'')+' need correction':'✓ INSPECTION ON TRACK — NO OPEN ISSUES')+'</div>';
+}
+
+function refreshStageUI(){
+  document.querySelectorAll('.inspection-stage').forEach(stage=>{
+    const cards=[...stage.querySelectorAll('.inspection-card')],done=cards.filter(x=>x.classList.contains('pass')||x.classList.contains('n-a')).length,issues=cards.filter(x=>x.classList.contains('issue')).length;
+    const count=stage.querySelector('.stage-count'),bar=stage.querySelector('.stage-progress-track span');
+    if(count)count.textContent=done+' / '+cards.length+' COMPLETE'+(issues?' • '+issues+' ISSUE'+(issues>1?'S':''):'');
+    if(bar)bar.style.width=(cards.length?Math.round(done/cards.length*100):0)+'%';
+  });
+}
+
+function updateDetail(){
+  const c=db.clients.find(x=>x.id===currentId);if(!c)return;
+  const p=progress(c);detailProgress.textContent=p+'% complete';
+  const done=Object.values(c.checks||{}).filter(v=>{const st=checkState(v);return st==='PASS'||st==='N/A';}).length;
+  progressBox.textContent='QC PROGRESS: '+p+'% — '+done+' checks completed';
+  renderInspectionSummary(c);refreshStageUI();
+}
+
 async function saveMeta(){const c=db.clients.find(x=>x.id===currentId);if(!c)return;c.name=document.getElementById('detailClient').value.trim()||'Unnamed Client';c.address=document.getElementById('detailAddress').value.trim();c.type=document.getElementById('detailType').value;document.getElementById('detailName').textContent=c.name;updateDetail();renderClients();await saveClient(c,'Updated project details');}
 async function resetClient(){if(!confirm('Reset every checklist item for this client?'))return;const c=db.clients.find(x=>x.id===currentId);if(!c)return;c.checks={};await saveClient(c,'Reset the entire checklist');openClient(currentId);}
 async function deleteClient(){if(!confirm('Delete this client and its checklist?'))return;const id=currentId;db.clients=db.clients.filter(x=>x.id!==id);showHome();try{const user=auth.currentUser;await addDoc(collection(firestore,'activity'),{clientId:id,clientName:(db.clients.find(x=>x.id===id)?.name||'Kitchen'),message:'Deleted the kitchen project',actorEmail:user?.email||'Team member',actorUid:user?.uid||'',createdAt:Date.now()});await deleteDoc(doc(firestore,'clients',id));}catch(e){console.error(e);showSyncError('Could not delete the client from the shared database.');}}
@@ -497,6 +624,8 @@ onAuthStateChanged(auth, user=>{
   if(!user || !manualLoginSession){
     document.body.classList.add('logged-out');
     ready=false;
+    if(evidenceUnsub){evidenceUnsub();evidenceUnsub=null;}
+    evidenceByKey={};
     appMain.classList.add('app-hidden');
     login.classList.remove('app-hidden');
     header?.classList.add('login-mode');
