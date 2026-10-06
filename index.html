@@ -6,13 +6,13 @@
 <style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f3f4f6;color:#20252b;font-family:Arial,Helvetica,sans-serif}
 header{background:#20252b;color:white;padding:18px 14px;text-align:center}h1{margin:0;font-size:21px}header p{margin:5px 0 0;color:#cbd0d6;font-size:12px}
-.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 20% 10%,#334155 0,#111827 42%,#070b11 100%);color:#fff}
-.login-card{width:100%;max-width:390px;background:rgba(255,255,255,.97);color:#20252b;border-radius:24px;padding:30px 24px;box-shadow:0 24px 70px #0008}
+.login-screen{min-height:calc(100vh - 72px);display:flex;align-items:center;justify-content:center;padding:28px 20px;background-image:linear-gradient(90deg,#07101ad9 0%,#07101aa8 45%,#07101a66 100%),url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=90');background-size:cover;background-position:center;color:#fff}
+.login-card{width:100%;max-width:430px;background:rgba(255,255,255,.97);color:#20252b;border-radius:28px;padding:34px 28px;box-shadow:0 24px 70px #0009;backdrop-filter:blur(3px)}
 .login-brand{font-size:11px;letter-spacing:2.5px;color:#a67c32;font-weight:800;text-align:center;margin-bottom:10px}
 .login-card h2{margin:0;text-align:center;font-size:29px;letter-spacing:1px}
 .login-card p{margin:8px 0 24px;text-align:center;color:#6b7280;font-size:13px}
-.login-card input{width:100%;padding:14px;border:1px solid #d7dbe0;border-radius:11px;font-size:15px;margin-bottom:12px;background:#fff}
-.login-card button{width:100%;padding:14px;border-radius:11px;border:0;font-size:15px;font-weight:800;background:#a67c32;color:#fff}
+.login-card input{width:100%;padding:15px 16px;border:1px solid #d7dbe0;border-radius:12px;font-size:15px;margin-bottom:13px;background:#fff;outline:none}.login-card input:focus{border-color:#b38a3c;box-shadow:0 0 0 3px #b38a3c18}
+.login-card button{width:100%;padding:15px;border-radius:12px;border:0;font-size:15px;font-weight:800;background:#b38a3c;color:#fff;cursor:pointer}.login-card button:not(:disabled):active{transform:translateY(1px)}
 .login-card button:disabled{opacity:.65}
 .login-error{min-height:18px;color:#b42318;font-size:12px;text-align:center;margin-top:10px}
 .login-user{font-size:11px;color:#cbd0d6;margin-top:5px}
@@ -75,6 +75,7 @@ header h1{font-size:22px;letter-spacing:.8px}
 /* Exact luxury dashboard upgrade */
 body{background:#f4f3f0;color:#17202b;padding-bottom:76px}
 .app-header{height:72px;background:#0b1119;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:50;box-shadow:0 4px 18px #0004}
+.app-header.login-mode .header-actions{display:none}.app-header.login-mode #menuToggle{display:none}
 .app-header .icon-btn{background:transparent;color:#fff;border:0;width:40px;height:40px;padding:0;font-size:25px;position:relative}
 .header-brand{text-align:center;line-height:1}.header-brand div{font-size:13px;letter-spacing:2px;font-weight:900}.header-brand span{display:none}
 .header-actions{display:flex;align-items:center;gap:6px}.avatar{width:39px;height:39px;border-radius:50%;border:2px solid #c8a45d;background:#202a38;color:#fff;font-weight:900;font-size:15px}
@@ -92,7 +93,7 @@ body{background:#f4f3f0;color:#17202b;padding-bottom:76px}
 .hidden{display:none!important}
 @media(max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.hero{min-height:290px}.hero-content{height:245px}.hero-script{font-size:20px}.project-photo{height:155px}}
 </style></head><body>
-<header class="app-header">
+<header id="appHeader" class="app-header login-mode">
   <button id="menuToggle" class="icon-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
   <div class="header-brand"><div>KITCHEN QC</div><span id="signedInUser"></span></div>
   <div class="header-actions">
@@ -113,9 +114,9 @@ body{background:#f4f3f0;color:#17202b;padding-bottom:76px}
     <div class="login-brand">QUALITY CONTROL & SITE INSPECTION</div>
     <h2>KITCHEN QC</h2>
     <p>Sign in to access your shared kitchen projects.</p>
-    <input id="loginEmail" type="email" autocomplete="username" placeholder="Email address">
-    <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password">
-    <button id="loginBtn" onclick="loginUser()">LOGIN</button>
+    <input id="loginEmail" type="email" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Email address">
+    <input id="loginPassword" type="password" autocomplete="off" placeholder="Password">
+    <button id="loginBtn" type="button" onclick="loginUser()">LOGIN <span aria-hidden="true">→</span></button>
     <div id="loginError" class="login-error"></div>
   </div>
 </section>
@@ -435,6 +436,7 @@ async function shareApp(){const url=location.href;try{if(navigator.share)await n
 window.showAdd=showAdd;window.showHome=showHome;window.createClient=createClient;window.resetClient=resetClient;window.deleteClient=deleteClient;window.shareApp=shareApp;window.renderClients=renderClients;
 
 // Firebase email/password authentication + real-time shared client list
+let manualLoginSession=sessionStorage.getItem('kqc_manual_login')==='1';
 async function loginUser(){
   const email=document.getElementById('loginEmail').value.trim();
   const password=document.getElementById('loginPassword').value;
@@ -442,22 +444,26 @@ async function loginUser(){
   const btn=document.getElementById('loginBtn');
   err.textContent='';
   if(!email||!password){err.textContent='Please enter your email and password.';return;}
-  btn.disabled=true;btn.textContent='SIGNING IN...';
+  btn.disabled=true;btn.innerHTML='SIGNING IN...';
   try{
     await signInWithEmailAndPassword(auth,email,password);
+    manualLoginSession=true;
+    sessionStorage.setItem('kqc_manual_login','1');
   }catch(e){
     console.error(e);
+    manualLoginSession=false;
+    sessionStorage.removeItem('kqc_manual_login');
     err.textContent='Login failed. Please check your email and password.';
   }finally{
-    btn.disabled=false;btn.textContent='LOGIN';
+    btn.disabled=false;btn.innerHTML='LOGIN <span aria-hidden="true">→</span>';
   }
 }
 async function logoutUser(){
+  manualLoginSession=false;
+  sessionStorage.removeItem('kqc_manual_login');
   try{await signOut(auth);}catch(e){console.error(e);}
 }
 window.loginUser=loginUser;window.logoutUser=logoutUser;
-document.getElementById('loginPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter')loginUser();});
-
 let lastSeenNotifications=Number(localStorage.getItem('kqc_notif_seen')||0);
 function toggleMenu(){document.getElementById('sideMenu').classList.toggle('hidden');document.getElementById('profileMenu').classList.add('hidden');document.getElementById('notifPanel').classList.add('hidden');}
 function toggleProfile(){document.getElementById('profileMenu').classList.toggle('hidden');document.getElementById('sideMenu').classList.add('hidden');document.getElementById('notifPanel').classList.add('hidden');}
@@ -485,17 +491,26 @@ onAuthStateChanged(auth, user=>{
   const appMain=document.getElementById('top');
   const logout=document.getElementById('logoutBtn');
   const signed=document.getElementById('signedInUser');
-  if(!user){
+  const header=document.getElementById('appHeader');
+  const menuToggle=document.getElementById('menuToggle');
+  if(!user || !manualLoginSession){
     ready=false;
     appMain.classList.add('app-hidden');
     login.classList.remove('app-hidden');
+    header?.classList.add('login-mode');
+    if(menuToggle){menuToggle.style.display='block';menuToggle.disabled=true;menuToggle.style.opacity='1';}
     logout.style.display='none';
     signed.textContent='';
+    document.getElementById('profileMenu')?.classList.add('hidden');
+    document.getElementById('notifPanel')?.classList.add('hidden');
+    document.getElementById('sideMenu')?.classList.add('hidden');
     return;
   }
   ready=true;
   login.classList.add('app-hidden');
   appMain.classList.remove('app-hidden');
+  header?.classList.remove('login-mode');
+  if(menuToggle){menuToggle.style.display='block';menuToggle.disabled=false;menuToggle.style.opacity='1';}
   logout.style.display='block';
   signed.textContent='';document.getElementById('profileEmail').textContent=user.email||'Team member';
   onSnapshot(collection(firestore,'clients'), snap=>{
@@ -508,7 +523,6 @@ onAuthStateChanged(auth, user=>{
     if(!document.getElementById('notifPanel').classList.contains('hidden'))renderNotifications();
   }, err=>{console.error(err);});
 });
-
 renderClients();
 </script>
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});}</script>
